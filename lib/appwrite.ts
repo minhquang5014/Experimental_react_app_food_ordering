@@ -8,6 +8,10 @@ export const appwriteConfig = {
     projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!,
     databaseID: process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID,
     usersCollectionID: process.env.EXPO_PUBLIC_APPWRITE_USER_COLLECTION_ID,
+    categoryCollectionID: process.env.EXPO_PUBLIC_APPWRITE_CATEGORY_COLLECTION_ID,
+    menuCollectionID: process.env.EXPO_PUBLIC_APPWRITE_MENU_COLLECTION_ID,
+    customizationCollectionID: process.env.EXPO_PUBLIC_APPWRITE_CUSTOMIZATION_COLLECTION_ID,
+    menuCustomizationCollectionID: process.env.EXPO_PUBLIC_APPWRITE_MENU_CUSTOMIZATION_COLLECTION_ID,
 }
 
 export const client = new Client()
@@ -24,7 +28,7 @@ const avatars = new Avatars(client);
 export const createUser = async ({email, password, name}: CreateUserProps) => {
     try {
         const newAccount = await account.create(ID.unique(), email, password, name);
-        const newAccountID = newAccount.$id;
+        const accountID = newAccount.$id;
         if(!newAccount) throw Error('Failed to create account');
         await SignInWithEmailPassword({ email, password });
         
@@ -33,7 +37,7 @@ export const createUser = async ({email, password, name}: CreateUserProps) => {
             appwriteConfig.databaseID!,
             appwriteConfig.usersCollectionID!,
             ID.unique(),
-            {email, name, newAccountID, avatarURL}
+            {email, name, accountID, avatar: avatarURL}
         )
         return newUser;
     } catch (error) {
@@ -63,7 +67,7 @@ export const getCurrentUser = async () => {
             appwriteConfig.usersCollectionID!,
             [Query.equal('accountID', [currentUser.$id])]
         );
-        if (!currentUserID) throw Error;
+        if (!currentUserID) throw new Error('User document not found');;
         return currentUserID.documents[0];
 
     } catch (e) {

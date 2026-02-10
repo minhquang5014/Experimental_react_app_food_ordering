@@ -4,6 +4,9 @@ import { router, Link } from 'expo-router'
 import CustomInput from '@/components/CustomInput'
 import CustomButton from '@/components/CustomButton'
 import { SignInWithEmailPassword } from '@/lib/appwrite'
+import * as Sentry from '@sentry/react-native';
+import useAuthStore from '@/store/auth.store'
+
 const SignIn = () => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [form, setForm] = React.useState({ email: '', password: ''});
@@ -14,11 +17,13 @@ const SignIn = () => {
 
     try {
       await SignInWithEmailPassword({ email: form.email, password: form.password });
+      await useAuthStore.getState().fetchAuthenticatedUser();
       Alert.alert('Success', 'You have signed in successfully');
-      router.replace('/');
-    } catch (error) {
+      router.replace('/(tabs)');
+    } catch (error: any) {
       console.log(error);
       Alert.alert('Error', 'Failed to sign in. Please try again.');
+      Sentry.captureEvent(error);
     } finally {
       setIsSubmitting(false);
     }

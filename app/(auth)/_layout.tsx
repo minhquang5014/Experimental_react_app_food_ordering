@@ -8,10 +8,16 @@ import { View,
         Image } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Slot } from 'expo-router'
+import { Redirect, Slot } from 'expo-router'
 import { images } from '../../constants'
+import useAuthStore from '@/store/auth.store'
 
-const _layout = () => {
+const AuthLayout = () => {
+  // const isAuthenticated = true;
+  const { isAuthenticated } = useAuthStore();
+  console.log('Auth Status in Auth Layout:', isAuthenticated);
+  if (isAuthenticated) return <Redirect href="/" />
+  
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView className="bg-white h-full" keyboardShouldPersistTaps="handled">
@@ -19,10 +25,10 @@ const _layout = () => {
                 <ImageBackground source={images.loginGraphic} className="size-full rounded-b-lg" resizeMode="stretch"/>
                 <Image source={images.logo} className="self-center size-48 absolute -bottom-16 z-10" />
             </View>
-          <Slot />  
+          <Slot />
         </ScrollView>
     </KeyboardAvoidingView>
   )
 }
 
-export default _layout
+export default AuthLayout

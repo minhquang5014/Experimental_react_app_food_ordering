@@ -1,9 +1,12 @@
+// Root layout
+
 import { Stack } from "expo-router/stack";
 import './globals.css';
 import { useFonts } from 'expo-font';
-import { useEffect  } from "react";
+import { use, useEffect  } from "react";
 import { SplashScreen } from "expo-router";
 import * as Sentry from '@sentry/react-native';
+import useAuthStore from "@/store/auth.store";
 
 Sentry.init({
   dsn: 'https://466e91a42c6283f11637b24b4708dc9b@o4510809871482880.ingest.de.sentry.io/4510809875415120',
@@ -24,19 +27,29 @@ Sentry.init({
   // spotlight: __DEV__,
 });
 
-export default Sentry.wrap(function Layout() {
-    const [fontsLoaded, error] = useFonts({
-        "Quicksand-Bold": require("../assets/fonts/Quicksand-Bold.ttf"),
-        "Quicksand-Medium": require("../assets/fonts/Quicksand-Medium.ttf"),
-        "Quicksand-Regular": require("../assets/fonts/Quicksand-Regular.ttf"),
-        "Quicksand-SemiBold": require("../assets/fonts/Quicksand-SemiBold.ttf"),
-        "Quicksand-Light": require("../assets/fonts/Quicksand-Light.ttf"),
-    });
-    
-    useEffect(() => {
-        if (error) throw error;
-        if (fontsLoaded) SplashScreen.hideAsync();
-    }, [fontsLoaded, error]);
+export default Sentry.wrap(function RootLayout() {
+  const { isLoading, fetchAuthenticatedUser } = useAuthStore();
 
-    return <Stack screenOptions={{ headerShown: false }} />;
+  const [fontsLoaded, error] = useFonts({
+    "QuickSand-Bold": require('../assets/fonts/Quicksand-Bold.ttf'),
+    "QuickSand-Medium": require('../assets/fonts/Quicksand-Medium.ttf'),
+    "QuickSand-Regular": require('../assets/fonts/Quicksand-Regular.ttf'),
+    "QuickSand-SemiBold": require('../assets/fonts/Quicksand-SemiBold.ttf'),
+    "QuickSand-Light": require('../assets/fonts/Quicksand-Light.ttf'),
+  });
+
+  useEffect(() => {
+    fetchAuthenticatedUser()
+  }, []);
+
+  useEffect(() => {
+    if(error) throw error;
+    if(fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded, error]);
+
+  if(!fontsLoaded || isLoading) return null;
+
+  return <Stack screenOptions={{ headerShown: false }} />;
 });
+
+// Sentry.showFeedbackWidget();

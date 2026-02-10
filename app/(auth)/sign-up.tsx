@@ -19,7 +19,7 @@ const SignUp = () => {
         email: form.email, 
         password: form.password 
       });
-      router.replace('/');
+      router.replace('/(tabs)');
     } catch (error) {
       console.log(error);
       Alert.alert('Error', 'Failed to sign up. Please try again.');
